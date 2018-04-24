@@ -70,80 +70,6 @@
               color2: '#CE6D39',
               radius: 80
             },
-            lastRotateAngle: function () {
-              var awardAngle = 0;
-              for (var i = 0; i < this.config.awardIndex; i++) {
-                if (i === this.config.awardIndex - 1) {
-                  awardAngle = awardAngle + 2 * Math.PI * (this.config.datas[i].rate / 2);
-                } else {
-                  awardAngle = awardAngle + 2 * Math.PI * this.config.datas[i].rate;
-                }
-              }
-
-              return Math.PI * (2 - 1 / 2) - awardAngle;
-            },
-            draw: function () {
-              var startAngle = 0;
-              var endAngle = 0;
-
-              for (var i in this.config.datas) {
-                this.ctx.save();
-
-                this.ctx.beginPath();
-
-                endAngle = startAngle + this.config.datas[i].rate * 2 * Math.PI;
-
-                if (i%2 === 0) {
-                  this.ctx.fillStyle = this.config.color1;
-                } else {
-                  this.ctx.fillStyle = this.config.color2;
-                }
-
-                this.ctx.moveTo(0, 0);
-                this.ctx.lineTo(this.config.radius * Math.cos(startAngle), this.config.radius * Math.sin(startAngle));
-                this.ctx.arc(0, 0, this.config.radius, startAngle, endAngle);
-                this.ctx.fill();
-
-                var textAngle = startAngle + (endAngle - startAngle) / 2;
-                var textX = (0.8 * this.config.radius) * Math.cos(textAngle);
-                var textY = (0.8 * this.config.radius) * Math.sin(textAngle);
-
-                this.ctx.translate(textX, textY);
-                this.ctx.rotate(Math.PI / 2 + textAngle);
-                this.ctx.font = "14px serif";
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.textAlign = 'center';
-                this.ctx.fillText(this.config.datas[i].text, 0, 0);
-
-                startAngle = endAngle;
-
-                this.ctx.restore();
-              }
-            },
-            clear: function () {
-              this.ctx.clearRect(-this.config.width / 2, -this.config.height / 2, this.config.width, this.config.height);
-            },
-            rotate: function () {
-              this.ctx.save();
-
-              var lastTime = this.config.runTime - (new Date().getTime() - this.config.timeStart);
-
-              if (lastTime > 0) {
-                this.clear();
-                var rotateAngle = this.lastRotateAngle() + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
-              } else {
-                window.cancelAnimationFrame(this.draw);
-                return;
-              }
-
-              this.ctx.rotate(rotateAngle);
-
-              this.draw();
-
-              this.ctx.restore();
-
-              window.requestAnimationFrame(this.rotate.bind(this));
-            },
             init: function (config) {
               this.config.id = config.id;
               this.config.width = config.width;
@@ -169,6 +95,107 @@
               document.getElementsByTagName('button')[0].onclick = function () {
                 _this.rotate();
               }
+            },
+            draw: function () {
+              var startAngle = 0;
+              var endAngle = 0;
+
+              for (var i in this.config.datas) {
+                this.ctx.save();
+                this.ctx.beginPath();
+
+                endAngle = startAngle + this.config.datas[i].rate * 2 * Math.PI;
+
+                if (i % 2 === 0) {
+                  this.ctx.fillStyle = this.config.color1;
+                  this.ctx.strokeStyle = this.config.color1;
+                } else {
+                  this.ctx.fillStyle = this.config.color2;
+                  this.ctx.strokeStyle = this.config.color2;
+                }
+
+                this.ctx.moveTo(0, 0);
+                this.ctx.lineTo(this.config.radius * Math.cos(startAngle), this.config.radius * Math.sin(startAngle));
+                this.ctx.arc(0, 0, this.config.radius, startAngle, endAngle);
+                this.ctx.lineTo(0, 0);
+                this.ctx.fill();
+
+                var textAngle = startAngle + (endAngle - startAngle) / 2;
+                var textX = (0.8 * this.config.radius) * Math.cos(textAngle);
+                var textY = (0.8 * this.config.radius) * Math.sin(textAngle);
+
+                this.ctx.translate(textX, textY);
+                this.ctx.rotate(Math.PI / 2 + textAngle);
+                this.ctx.font = "14px serif";
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(this.config.datas[i].text, 0, 0);
+
+                startAngle = endAngle;
+
+                this.ctx.closePath();
+                this.ctx.restore();
+              }
+
+              this.drawPointer();
+            },
+            drawPointer: function () {
+              this.ctx.save();
+              this.ctx.beginPath();
+
+              this.ctx.fillStyle = '#FFEEE4';
+              this.ctx.arc(0, 0, this.config.width * 0.1, 0, 2 * Math.PI);
+              this.ctx.fill();
+
+              this.ctx.moveTo(-this.config.width * 0.04, 0);
+              this.ctx.lineTo(0, -this.config.width * 0.2);
+              this.ctx.lineTo(this.config.width * 0.04, 0);
+              this.ctx.fill();
+
+              this.ctx.fillStyle = '#000000';
+              this.ctx.textAlign = 'center';
+              this.ctx.textBaseline = 'middle';
+              this.ctx.font = '14px serif';
+              this.ctx.fillText('开始抽奖', 0, 0);
+
+              this.ctx.closePath();
+              this.ctx.restore();
+            },
+            rotate: function () {
+              this.ctx.save();
+
+              var lastTime = this.config.runTime - (new Date().getTime() - this.config.timeStart);
+
+              if (lastTime > 0) {
+                this.clear();
+                var rotateAngle = this.lastRotateAngle() + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
+              } else {
+                window.cancelAnimationFrame(this.draw);
+                return;
+              }
+
+              this.ctx.rotate(rotateAngle);
+
+              this.draw();
+
+              this.ctx.restore();
+
+              window.requestAnimationFrame(this.rotate.bind(this));
+            },
+            lastRotateAngle: function () {
+              var awardAngle = 0;
+              for (var i = 0; i < this.config.awardIndex; i++) {
+                if (i === this.config.awardIndex - 1) {
+                  awardAngle = awardAngle + 2 * Math.PI * (this.config.datas[i].rate / 2);
+                } else {
+                  awardAngle = awardAngle + 2 * Math.PI * this.config.datas[i].rate;
+                }
+              }
+
+              return Math.PI * (2 - 1 / 2) - awardAngle;
+            },
+            clear: function () {
+              this.ctx.clearRect(-this.config.width / 2, -this.config.height / 2, this.config.width, this.config.height);
             }
         };
 
