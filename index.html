@@ -67,7 +67,8 @@
               runTime: 10000,
               timeStart: new Date().getTime(),
               color1: '#F17F42',
-              color2: '#CE6D39'
+              color2: '#CE6D39',
+              radius: 80
             },
             lastRotateAngle: function () {
               var awardAngle = 0;
@@ -82,17 +83,12 @@
               return Math.PI * (2 - 1 / 2) - awardAngle;
             },
             draw: function () {
-              this.ctx.save();
-
-//              this.ctx.translate(this.config.width / 2, this.config.height / 2);
-
-              var radius = 150;
-
               var startAngle = 0;
               var endAngle = 0;
 
               for (var i in this.config.datas) {
                 this.ctx.save();
+
                 this.ctx.beginPath();
 
                 endAngle = startAngle + this.config.datas[i].rate * 2 * Math.PI;
@@ -104,13 +100,13 @@
                 }
 
                 this.ctx.moveTo(0, 0);
-                this.ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
-                this.ctx.arc(0, 0, radius, startAngle, endAngle);
+                this.ctx.lineTo(this.config.radius * Math.cos(startAngle), this.config.radius * Math.sin(startAngle));
+                this.ctx.arc(0, 0, this.config.radius, startAngle, endAngle);
                 this.ctx.fill();
 
                 var textAngle = startAngle + (endAngle - startAngle) / 2;
-                var textX = (0.8 * radius) * Math.cos(textAngle);
-                var textY = (0.8 * radius) * Math.sin(textAngle);
+                var textX = (0.8 * this.config.radius) * Math.cos(textAngle);
+                var textY = (0.8 * this.config.radius) * Math.sin(textAngle);
 
                 this.ctx.translate(textX, textY);
                 this.ctx.rotate(Math.PI / 2 + textAngle);
@@ -123,18 +119,17 @@
 
                 this.ctx.restore();
               }
-
-              this.ctx.restore();
+            },
+            clear: function () {
+              this.ctx.clearRect(-this.config.width / 2, -this.config.height / 2, this.config.width, this.config.height);
             },
             rotate: function () {
               this.ctx.save();
 
-
               var lastTime = this.config.runTime - (new Date().getTime() - this.config.timeStart);
 
               if (lastTime > 0) {
-                this.ctx.clearRect(0, 0, this.config.width, this.config.height);
-                this.ctx.beginPath();
+                this.clear();
                 var rotateAngle = this.lastRotateAngle() + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
               } else {
                 window.cancelAnimationFrame(this.draw);
@@ -159,6 +154,8 @@
               this.config.canvas = document.getElementById(config.id);
               this.config.canvas.setAttribute('width', config.width);
               this.config.canvas.setAttribute('height', config.height);
+
+              this.config.radius = (config.width / 2) * 0.8;
 
 
               this.ctx = canvas.getContext('2d');
