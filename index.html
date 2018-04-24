@@ -44,10 +44,15 @@
                 rate: '0.125'
             }
         ];
-        var rateI = 5;
+        var rateI = 1;
 
 
         function rotate (config) {
+            var rates = config.rates || alert('rates 参数不能为空');
+            var rateI = config.rateI || alert('rateI 不能为空');
+            var canvasWidth = config.canvasWidth;
+            var canvasHeight = config.canvasHeight;
+
             var c = document.getElementById("canvas");
             c.setAttribute('width', config.canvasWidth);
             c.setAttribute('height', config.canvasHeight);
@@ -55,7 +60,7 @@
             var runTime = config.runTime || 10000;
             var timeStart = new Date().getTime();
 
-            var lastRotateAngle = (function getLastRotateAngle (rates, rateI) {
+            var lastRotateAngle = (function getLastRotateAngle () {
                                         var awardAngle = 0;
                                         for (var i = 0; i < rateI; i++) {
                                             if (i === rateI - 1) {
@@ -66,12 +71,9 @@
                                         }
 
                                         return Math.PI * (2 - 1 / 2) - awardAngle;
-                                    })();
+                                    })(rates, rateI);
 
-            var rates = config.rates || alert('rates 参数不能为空');
-            var rateI = config.rateI || alert('rateI 不能为空');
-            var canvasWidth = config.canvasWidth;
-            var canvasHeight = config.canvasHeight;
+
 
             draw();
 
