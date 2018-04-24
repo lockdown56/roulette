@@ -7,148 +7,180 @@
     <title>Document</title>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="border: 1px solid blue;"></canvas>
+    <button>fhd</button>
     <script>
 
-        var rates = [
+        var datas = [
             {
                 text: '20积分1',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '一张卡券2',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖3',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖4',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖5',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖6',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖7',
-                rate: '0.125'
+                rate: '0.1'
             },
             {
                 text: '未中奖8',
-                rate: '0.125'
+                rate: '0.1'
+            },
+            {
+                text: '未中奖7',
+                rate: '0.1'
+            },
+            {
+                text: '未中奖8',
+                rate: '0.1'
             }
         ];
-        var rateI = 1;
+        var awardIndex = 2;
 
-
-        function rotate (config) {
-            var rates = config.rates || alert('rates 参数不能为空');
-            var rateI = config.rateI || alert('rateI 不能为空');
-            var canvasWidth = config.canvasWidth;
-            var canvasHeight = config.canvasHeight;
-
-            var c = document.getElementById("canvas");
-            c.setAttribute('width', config.canvasWidth);
-            c.setAttribute('height', config.canvasHeight);
-
-            var runTime = config.runTime || 10000;
-            var timeStart = new Date().getTime();
-
-            var lastRotateAngle = (function getLastRotateAngle () {
-                                        var awardAngle = 0;
-                                        for (var i = 0; i < rateI; i++) {
-                                            if (i === rateI - 1) {
-                                                awardAngle = awardAngle + 2 * Math.PI * (rates[i].rate / 2);
-                                            } else {
-                                                awardAngle = awardAngle + 2 * Math.PI * rates[i].rate;
-                                            }
-                                        }
-
-                                        return Math.PI * (2 - 1 / 2) - awardAngle;
-                                    })(rates, rateI);
-
-
-
-            draw();
-
-            function draw() {
-                var ctx = c.getContext('2d');
-
-                ctx.save();
-
-                ctx.translate(canvasWidth / 2, canvasHeight / 2);
-
-                var lastTime = runTime - (new Date().getTime() - timeStart);
-
-                if (lastTime > 0) {
-                    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                    var rotateAngle = lastRotateAngle + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
+        var Roulette = {
+            ctx: null,
+            config: {
+              id: '',
+              width: '200',
+              height: '200',
+              datas: '',
+              awardIndex: 1,
+              canvas: null,
+              runTime: 10000,
+              timeStart: new Date().getTime(),
+              color1: '#F17F42',
+              color2: '#CE6D39'
+            },
+            lastRotateAngle: function () {
+              var awardAngle = 0;
+              for (var i = 0; i < this.config.awardIndex; i++) {
+                if (i === this.config.awardIndex - 1) {
+                  awardAngle = awardAngle + 2 * Math.PI * (this.config.datas[i].rate / 2);
                 } else {
-                    window.cancelAnimationFrame(draw);
-                    return;
+                  awardAngle = awardAngle + 2 * Math.PI * this.config.datas[i].rate;
+                }
+              }
+
+              return Math.PI * (2 - 1 / 2) - awardAngle;
+            },
+            draw: function () {
+              this.ctx.save();
+
+//              this.ctx.translate(this.config.width / 2, this.config.height / 2);
+
+              var radius = 150;
+
+              var startAngle = 0;
+              var endAngle = 0;
+
+              for (var i in this.config.datas) {
+                this.ctx.save();
+                this.ctx.beginPath();
+
+                endAngle = startAngle + this.config.datas[i].rate * 2 * Math.PI;
+
+                if (i%2 === 0) {
+                  this.ctx.fillStyle = this.config.color1;
+                } else {
+                  this.ctx.fillStyle = this.config.color2;
                 }
 
-                ctx.rotate(rotateAngle);
+                this.ctx.moveTo(0, 0);
+                this.ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
+                this.ctx.arc(0, 0, radius, startAngle, endAngle);
+                this.ctx.fill();
 
-                var radius = 150;
+                var textAngle = startAngle + (endAngle - startAngle) / 2;
+                var textX = (0.8 * radius) * Math.cos(textAngle);
+                var textY = (0.8 * radius) * Math.sin(textAngle);
 
-                var startAngle = 0;
-                var endAngle = 0;
+                this.ctx.translate(textX, textY);
+                this.ctx.rotate(Math.PI / 2 + textAngle);
+                this.ctx.font = "14px serif";
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(this.config.datas[i].text, 0, 0);
 
-                var color1 = '#2EC4B6';
-                var color2 = '#E71D36';
+                startAngle = endAngle;
 
-                for (var i in rates) {
-                    ctx.save();
-                    ctx.beginPath();
+                this.ctx.restore();
+              }
 
-                    endAngle = startAngle + rates[i].rate * 2 * Math.PI;
+              this.ctx.restore();
+            },
+            rotate: function () {
+              this.ctx.save();
 
-                    if (i%2 === 0) {
-                        ctx.fillStyle = '#2EC4B6';
-                    } else {
-                        ctx.fillStyle = '#E71D36';
-                    }
 
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
-                    ctx.arc(0, 0, radius, startAngle, endAngle);
-                    ctx.fill();
+              var lastTime = this.config.runTime - (new Date().getTime() - this.config.timeStart);
 
-                    var textAngle = startAngle + (endAngle - startAngle) / 2;
-                    var textX = (0.8 * radius) * Math.cos(textAngle);
-                    var textY = (0.8 * radius) * Math.sin(textAngle);
+              if (lastTime > 0) {
+                this.ctx.clearRect(0, 0, this.config.width, this.config.height);
+                this.ctx.beginPath();
+                var rotateAngle = this.lastRotateAngle() + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
+              } else {
+                window.cancelAnimationFrame(this.draw);
+                return;
+              }
 
-                    ctx.translate(textX, textY);
-                    ctx.rotate(Math.PI / 2 + textAngle);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(rates[i].text, 0, 0);
+              this.ctx.rotate(rotateAngle);
 
-                    startAngle = endAngle;
+              this.draw();
 
-                    ctx.closePath();
+              this.ctx.restore();
 
-                    ctx.restore();
-                }
-                ctx.restore();
+              window.requestAnimationFrame(this.rotate.bind(this));
+            },
+            init: function (config) {
+              this.config.id = config.id;
+              this.config.width = config.width;
+              this.config.height = config.height;
+              this.config.datas = config.datas;
+              this.config.awardIndex = config.awardIndex;
 
-                window.requestAnimationFrame(draw);
+              this.config.canvas = document.getElementById(config.id);
+              this.config.canvas.setAttribute('width', config.width);
+              this.config.canvas.setAttribute('height', config.height);
+
+
+              this.ctx = canvas.getContext('2d');
+
+              this.ctx.translate(this.config.width / 2, this.config.height / 2);
+              this.ctx.save();
+
+              this.draw();
+
+              var _this = this;
+              document.getElementsByTagName('button')[0].onclick = function () {
+                _this.rotate();
+              }
             }
-        }
+        };
 
-        rotate({
-            id: 'canvas',
-            canvasWidth: 400,
-            canvasHeight: 400,
-            rates: rates,
-            rateI: rateI
+        Roulette.init({
+          id: 'canvas',
+          width: 400,
+          height: 400,
+          datas: datas,
+          awardIndex: awardIndex
         });
     </script>
 </body>
