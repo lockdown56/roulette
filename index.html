@@ -9,18 +9,6 @@
 <body>
     <canvas id="canvas"></canvas>
     <script>
-        var canvasWidth = 400;
-        var canvasHeight = 400;
-
-        var c = document.getElementById("canvas");
-        c.setAttribute('width', canvasWidth);
-        c.setAttribute('height', canvasHeight);
-        c.style.border = '1px solid blue';
-
-
-        var t = 12045;
-        var time = new Date();
-        timeStart = time.getTime();
 
         var rates = [
             {
@@ -56,91 +44,110 @@
                 rate: '0.125'
             }
         ];
-
         var rateI = 5;
 
-        var lastRotateAngle = 0;
-        for (var i = 0; i < rateI; i++) {
-            if (i === rateI - 1) {
-                lastRotateAngle = lastRotateAngle + 2 * Math.PI * (rates[i].rate / 2);
-            } else {
-                lastRotateAngle = lastRotateAngle + 2 * Math.PI * rates[i].rate;
-            }
-        }
 
-        lastRotateAngle = Math.PI * (2 - 1 / 2) - lastRotateAngle;
+        function rotate (config) {
+            var c = document.getElementById("canvas");
+            c.setAttribute('width', config.canvasWidth);
+            c.setAttribute('height', config.canvasHeight);
 
-        function draw() {
-            var ctx = c.getContext('2d');
+            var runTime = config.runTime || 10000;
+            var timeStart = new Date().getTime();
 
-            ctx.save();
+            var lastRotateAngle = (function getLastRotateAngle (rates, rateI) {
+                                        var awardAngle = 0;
+                                        for (var i = 0; i < rateI; i++) {
+                                            if (i === rateI - 1) {
+                                                awardAngle = awardAngle + 2 * Math.PI * (rates[i].rate / 2);
+                                            } else {
+                                                awardAngle = awardAngle + 2 * Math.PI * rates[i].rate;
+                                            }
+                                        }
 
-            ctx.translate(canvasWidth / 2, canvasHeight / 2);
+                                        return Math.PI * (2 - 1 / 2) - awardAngle;
+                                    })();
 
-            var currTime = new Date();
-            var constTime = currTime.getTime() - timeStart;
+            var rates = config.rates || alert('rates 参数不能为空');
+            var rateI = config.rateI || alert('rateI 不能为空');
+            var canvasWidth = config.canvasWidth;
+            var canvasHeight = config.canvasHeight;
 
-            if (t-constTime > 0) {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                var rotateAngle = lastRotateAngle + 2 * Math.PI - Math.pow((t - constTime) / 1000, 2) % (2 * Math.PI);
-            } else {
-                window.cancelAnimationFrame(draw);
-                return;
-            }
+            draw();
 
-            ctx.rotate(rotateAngle);
+            function draw() {
+                var ctx = c.getContext('2d');
 
-            var radius = 150;
-
-
-            var startAngle = 0;
-            var endAngle = 0;
-
-            var color1 = '#2EC4B6';
-            var color2 = '#E71D36';
-
-            for (i in rates) {
                 ctx.save();
-                ctx.beginPath();
 
-                endAngle = startAngle + rates[i].rate * 2 * Math.PI;
+                ctx.translate(canvasWidth / 2, canvasHeight / 2);
 
-                if (i%2 === 0) {
-                    ctx.fillStyle = '#2EC4B6';
+                var lastTime = runTime - (new Date().getTime() - timeStart);
+
+                if (lastTime > 0) {
+                    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                    var rotateAngle = lastRotateAngle + 2 * Math.PI - Math.pow(lastTime / 1000, 2) % (2 * Math.PI);
                 } else {
-                    ctx.fillStyle = '#E71D36';
+                    window.cancelAnimationFrame(draw);
+                    return;
                 }
 
-                ctx.moveTo(0, 0);
-                ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
-                ctx.arc(0, 0, radius, startAngle, endAngle);
-                ctx.fill();
+                ctx.rotate(rotateAngle);
 
-                var textAngle = startAngle + (endAngle - startAngle) / 2;
-                var textX = (0.8 * radius) * Math.cos(textAngle);
-                var textY = (0.8 * radius) * Math.sin(textAngle);
+                var radius = 150;
 
-                ctx.translate(textX, textY);
-                ctx.rotate(Math.PI / 2 + textAngle);
-                ctx.fillStyle = '#FFFFFF';
-                ctx.textAlign = 'center';
-                ctx.fillText(rates[i].text, 0, 0);
+                var startAngle = 0;
+                var endAngle = 0;
 
-                startAngle = endAngle;
+                var color1 = '#2EC4B6';
+                var color2 = '#E71D36';
 
-                ctx.closePath();
+                for (var i in rates) {
+                    ctx.save();
+                    ctx.beginPath();
 
+                    endAngle = startAngle + rates[i].rate * 2 * Math.PI;
+
+                    if (i%2 === 0) {
+                        ctx.fillStyle = '#2EC4B6';
+                    } else {
+                        ctx.fillStyle = '#E71D36';
+                    }
+
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
+                    ctx.arc(0, 0, radius, startAngle, endAngle);
+                    ctx.fill();
+
+                    var textAngle = startAngle + (endAngle - startAngle) / 2;
+                    var textX = (0.8 * radius) * Math.cos(textAngle);
+                    var textY = (0.8 * radius) * Math.sin(textAngle);
+
+                    ctx.translate(textX, textY);
+                    ctx.rotate(Math.PI / 2 + textAngle);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(rates[i].text, 0, 0);
+
+                    startAngle = endAngle;
+
+                    ctx.closePath();
+
+                    ctx.restore();
+                }
                 ctx.restore();
-            }
-            ctx.restore();
 
-            if (t <= 0) {
-            } else {
                 window.requestAnimationFrame(draw);
             }
         }
 
-        draw();
+        rotate({
+            id: 'canvas',
+            canvasWidth: 400,
+            canvasHeight: 400,
+            rates: rates,
+            rateI: rateI
+        });
     </script>
 </body>
 </html>
