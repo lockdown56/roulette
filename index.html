@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        var canavsWidth = 400;
+        var canvasHeight = 400;
+
+        var c = document.getElementById("canvas");
+        c.setAttribute('width', canavsWidth);
+        c.setAttribute('height', canvasHeight);
+        c.style.border = '1px solid blue';
+
+        var totalAngle = 10 * Math.PI;
+
+        var t = 10000;
+        var time = new Date();
+        timeStart = time.getTime();
+
+        var i = 3;
+
+        function draw() {
+            var ctx = c.getContext('2d');
+
+            ctx.save();
+
+            ctx.clearRect(0, 0, 400, 400);
+            ctx.translate(canavsWidth / 2, canvasHeight / 2);
+
+            var currTime = new Date();
+            var constTime = currTime.getTime() - timeStart;
+
+            if (t-constTime > 0) {
+                var rotateAngle = 2 * Math.PI - Math.pow((t - constTime)/1000, 2) % (2 * Math.PI);
+            } else {
+                window.cancelAnimationFrame(draw);
+            }
+
+            ctx.rotate(rotateAngle);
+
+            var radius = 150;
+
+            var rates = [
+                {
+                    text: '20积分1',
+                    rate: '0.125'
+                },
+                {
+                    text: '一张卡券2',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖3',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖4',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖5',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖6',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖7',
+                    rate: '0.125'
+                },
+                {
+                    text: '未中奖8',
+                    rate: '0.125'
+                }
+            ];
+
+            var startAngle = 0;
+            var endAngle = 0;
+
+            var color1 = '#2EC4B6';
+            var color2 = '#E71D36';
+
+            for (i in rates) {
+                ctx.save();
+                ctx.beginPath();
+
+                endAngle = startAngle + rates[i].rate * 2 * Math.PI;
+
+                if (i%2 === 0) {
+                    ctx.fillStyle = '#2EC4B6';
+                } else {
+                    ctx.fillStyle = '#E71D36';
+                }
+
+                ctx.moveTo(0, 0);
+                ctx.lineTo(radius * Math.cos(startAngle), radius * Math.sin(startAngle));
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.fill();
+
+                var textAngle = startAngle + (endAngle - startAngle) / 2;
+                var textX = (0.8 * radius) * Math.cos(textAngle);
+                var textY = (0.8 * radius) * Math.sin(textAngle);
+
+                ctx.translate(textX, textY);
+                ctx.rotate(Math.PI / 2 + textAngle);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.textAlign = 'center';
+                ctx.fillText(rates[i].text, 0, 0);
+
+                startAngle = endAngle;
+
+                ctx.closePath();
+
+                ctx.restore();
+            }
+            ctx.restore();
+            window.requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>
