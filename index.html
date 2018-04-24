@@ -7,8 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <canvas id="canvas" style="border: 1px solid blue;"></canvas>
-    <button>fhd</button>
+    <div id="canvas">
+        <canvas></canvas>
+    </div>
     <script>
 
         var datas = [
@@ -56,6 +57,8 @@
         var awardIndex = 2;
 
         var Roulette = {
+            container: null,
+            canvas: null,
             ctx: null,
             config: {
               id: '',
@@ -63,7 +66,6 @@
               height: '200',
               datas: '',
               awardIndex: 1,
-              canvas: null,
               runTime: 10000,
               timeStart: new Date().getTime(),
               color1: '#F17F42',
@@ -71,30 +73,30 @@
               radius: 80
             },
             init: function (config) {
+              this.container = document.getElementById(config.id);
+              this.canvas = this.container.getElementsByTagName('canvas')[0];
+              this.canvas.setAttribute('width', config.width);
+              this.canvas.setAttribute('height', config.height);
+
               this.config.id = config.id;
               this.config.width = config.width;
               this.config.height = config.height;
               this.config.datas = config.datas;
               this.config.awardIndex = config.awardIndex;
 
-              this.config.canvas = document.getElementById(config.id);
-              this.config.canvas.setAttribute('width', config.width);
-              this.config.canvas.setAttribute('height', config.height);
-
               this.config.radius = (config.width / 2) * 0.8;
 
 
-              this.ctx = canvas.getContext('2d');
+              this.ctx = this.canvas.getContext('2d');
 
               this.ctx.translate(this.config.width / 2, this.config.height / 2);
               this.ctx.save();
 
               this.draw();
 
-              var _this = this;
-              document.getElementsByTagName('button')[0].onclick = function () {
-                _this.rotate();
-              }
+              this.drawPointer();
+
+              this.listenClick();
             },
             draw: function () {
               var startAngle = 0;
@@ -136,8 +138,6 @@
                 this.ctx.closePath();
                 this.ctx.restore();
               }
-
-              this.drawPointer();
             },
             drawPointer: function () {
               this.ctx.save();
@@ -180,6 +180,8 @@
 
               this.ctx.restore();
 
+              this.drawPointer();
+
               window.requestAnimationFrame(this.rotate.bind(this));
             },
             lastRotateAngle: function () {
@@ -196,6 +198,34 @@
             },
             clear: function () {
               this.ctx.clearRect(-this.config.width / 2, -this.config.height / 2, this.config.width, this.config.height);
+            },
+            listenClick: function () {
+              this.container.style.position = 'relative';
+
+              var width = this.config.width * 0.2;
+              var height = this.config.height * 0.2;
+
+              var clickAreaWrap = document.createElement('div');
+              clickAreaWrap.style.height = height + 'px';
+              clickAreaWrap.style.width = width + 'px';
+              clickAreaWrap.style.position = 'absolute';
+              clickAreaWrap.style.top = '50%';
+              clickAreaWrap.style.left = '50%';
+
+              var clickAreaInner = document.createElement('div');
+              clickAreaInner.style.height = height + 'px';
+              clickAreaInner.style.width = width + 'px';
+              clickAreaInner.style.marginTop = '-50%';
+              clickAreaInner.style.marginLeft = '-50%';
+
+              clickAreaWrap.append(clickAreaInner);
+
+              this.container.append(clickAreaWrap);
+
+              var _this = this;
+              clickAreaInner.addEventListener('click', function () {
+                _this.rotate();
+              })
             }
         };
 
