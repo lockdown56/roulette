@@ -74,6 +74,9 @@
             },
             init: function (config) {
               this.container = document.getElementById(config.id);
+              this.container.style.width = config.width + 'px';
+              this.container.style.height = config.height + 'px';
+
               this.canvas = this.container.getElementsByTagName('canvas')[0];
               this.canvas.setAttribute('width', config.width);
               this.canvas.setAttribute('height', config.height);
@@ -224,6 +227,7 @@
 
               var _this = this;
               clickAreaInner.addEventListener('click', function () {
+                console.log('ahhah');
                 _this.rotate();
               })
             }
