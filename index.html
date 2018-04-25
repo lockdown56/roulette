@@ -75,12 +75,19 @@
               // color1: '#fc9d9a',
               // color2: '#f9cdad',
 
+              // color1: '#ede574',
+              // color2: '#fc913a',
+
               color1: '#ede574',
               color2: '#fc913a',
 
+              borderColor: '#fe4365',
+              borderPointColor: '#1ec0ff',
+
               radius: 80,
-              textSize: 14,
-              pointerTextSize: 14,
+              textSize: 16,
+              textColor: '#000000',
+              pointerTextSize: 16,
             },
             init: function (config) {
               this.container = document.getElementById(config.id);
@@ -137,8 +144,7 @@
                 this.ctx.save();
 
                 this.ctx.beginPath();
-                // this.ctx.fillStyle = '#bd1550';
-                this.ctx.fillStyle = '#fe4365';
+                this.ctx.fillStyle = this.config.borderColor;
                 this.ctx.arc(0, 0, this.config.width / 2 * 0.95, 0, 2 * Math.PI);
                 this.ctx.fill();
                 this.ctx.closePath();
@@ -146,7 +152,7 @@
                 for (var i = 0; i < 16; i++) {
                   this.ctx.save();
                   this.ctx.beginPath();
-                  this.ctx.fillStyle = '#1ec0ff';
+                  this.ctx.fillStyle = this.config.borderPointColor;
                   this.ctx.rotate(i * Math.PI / 8);
                   this.ctx.arc(this.config.width / 2 * 0.875, 0, this.config.width / 2 * 0.04, 0, 2 * Math.PI);
                   this.ctx.fill();
@@ -186,8 +192,8 @@
 
                 this.ctx.translate(textX, textY);
                 this.ctx.rotate(Math.PI / 2 + textAngle);
-                this.ctx.font = this.config.textSize + "px serif";
-                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = "bold " + this.config.textSize + "px serif";
+                this.ctx.fillStyle = this.config.textColor;
                 this.ctx.textAlign = 'center';
                 this.ctx.fillText(this.config.datas[i].text, 0, 0);
 
