@@ -61,36 +61,47 @@
             canvas: null,
             ctx: null,
             config: {
-              id: '',
               width: '200',
               height: '200',
+              ratio: 1,
               datas: '',
               awardIndex: 1,
               runTime: 10000,
               timeStart: new Date().getTime(),
               color1: '#F17F42',
               color2: '#CE6D39',
-              radius: 80
+              radius: 80,
+              textSize: 14,
+              pointerTextSize: 14,
             },
             init: function (config) {
               this.container = document.getElementById(config.id);
-              this.container.style.width = config.width + 'px';
-              this.container.style.height = config.height + 'px';
-
               this.canvas = this.container.getElementsByTagName('canvas')[0];
-              this.canvas.setAttribute('width', config.width);
-              this.canvas.setAttribute('height', config.height);
 
-              this.config.id = config.id;
-              this.config.width = config.width;
-              this.config.height = config.height;
               this.config.datas = config.datas;
               this.config.awardIndex = config.awardIndex;
 
-              this.config.radius = (config.width / 2) * 0.8;
-
-
               this.ctx = this.canvas.getContext('2d');
+
+              var ratio = this.getRatio();
+              this.config.ratio = ratio;
+
+              var size = this.container.parentNode.offsetWidth;
+
+              this.container.style.width = size + 'px';
+              this.container.style.height = size + 'px';
+
+              this.config.width = size * ratio;
+              this.config.height = size * ratio;
+              this.config.textSize = this.config.textSize * ratio;
+              this.config.pointerTextSize = this.config.pointerTextSize * ratio;
+              this.config.radius = (this.config.width / 2) * 0.8;
+
+              this.canvas.setAttribute('width', this.config.width);
+              this.canvas.setAttribute('height', this.config.height);
+              this.canvas.style.width = size + 'px';
+              this.canvas.style.height = size + 'px';
+
 
               this.ctx.translate(this.config.width / 2, this.config.height / 2);
               this.ctx.save();
@@ -100,6 +111,17 @@
               this.drawPointer();
 
               this.listenClick();
+            },
+            getRatio: function () {
+              var devicePixelRatio = window.devicePixelRatio || 1;
+
+              var backingStoreRatio = this.ctx.webkitBackingStorePixelRatio ||
+                                      this.ctx.mozBackingStorePixelRatio ||
+                                      this.ctx.msBackingStorePixelRatio ||
+                                      this.ctx.oBackingStorePixelRatio ||
+                                      this.ctx.backingStorePixelRatio || 1;
+
+              return devicePixelRatio / backingStoreRatio;
             },
             draw: function () {
               var startAngle = 0;
@@ -131,7 +153,7 @@
 
                 this.ctx.translate(textX, textY);
                 this.ctx.rotate(Math.PI / 2 + textAngle);
-                this.ctx.font = "14px serif";
+                this.ctx.font = this.config.textSize + "px serif";
                 this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.textAlign = 'center';
                 this.ctx.fillText(this.config.datas[i].text, 0, 0);
@@ -158,7 +180,7 @@
               this.ctx.fillStyle = '#000000';
               this.ctx.textAlign = 'center';
               this.ctx.textBaseline = 'middle';
-              this.ctx.font = '14px serif';
+              this.ctx.font = this.config.pointerTextSize + 'px serif';
               this.ctx.fillText('开始抽奖', 0, 0);
 
               this.ctx.closePath();
@@ -205,8 +227,8 @@
             listenClick: function () {
               this.container.style.position = 'relative';
 
-              var width = this.config.width * 0.2;
-              var height = this.config.height * 0.2;
+              var width = this.config.width * 0.2 / this.config.ratio;
+              var height = this.config.height * 0.2 / this.config.ratio;
 
               var clickAreaWrap = document.createElement('div');
               clickAreaWrap.style.height = height + 'px';
