@@ -54,6 +54,15 @@ var Roulette = {
     },
     setConfig: function (config) {
       this.config.datas = config.datas;
+      this.config.color1 = config.color1 || this.config.color1;
+      this.config.color2 = config.color2 || this.config.color2;
+      this.config.borderColor = config.borderColor || this.config.borderColor;
+      this.config.borderPointColor = config.borderPointColor || this.config.borderPointColor;
+      this.config.textSize = config.textSize || this.config.textSize;
+      this.config.textColor = config.textColor || this.config.textColor;
+      this.config.pointerTextSize = config.pointerTextSize || this.config.pointerTextSize;
+      this.config.pointerTextColor = config.pointerTextColor || this.config.pointerTextColor;
+      this.config.pointerBgColor = config.pointerBgColor || this.config.pointerBgColor;
     },
     initSize: function (id) {
       var size = this.container.parentNode.offsetWidth;
