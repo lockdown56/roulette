@@ -25,14 +25,23 @@
 
       Roulette.init({
         id: 'canvas',
-        datas: datas,
-        onclick: function () {
-          Roulette.setAwardIndex(1);
-          Roulette.preventRotate();
-          Roulette.rotate();
+        color1: '#FFEAB0', // 色块1颜色, 可选
+        color2: '#FFFFFF', // 色块2颜色, 可选
+        borderColor: '#FFBE04', // 边框颜色, 可选
+        borderPointColor: '#FFFFFF', // 边框上的点颜色, 可选
+        textSize: 14, // 奖品文字大小， 可选
+        textColor: '#D499B9', // 奖品文字颜色, 可选
+        pointerTextSize: 16, // 指针文字大小，可选  
+        pointerTextColor: '#FFFFFF', // 指针文字颜色, 可选
+        pointerBgColor: '#FF6600', // 指针背景颜色, 可选
+        datas: datas, // 奖品列表
+        onclick: function () { // 点击抽奖执行的方法
+          Roulette.setAwardIndex(1); // 设置最终选中的项
+          Roulette.preventRotate(); // 防止重复点击
+          Roulette.rotate(); // 开始转
         },
-        end: function () {
-          Roulette.allowRotate();
+        end: function () { // 旋转结束后执行的方法
+          Roulette.allowRotate(); // 允许转盘可以中心点击
         }
       });
     </script>
